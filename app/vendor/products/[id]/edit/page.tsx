@@ -2,7 +2,12 @@ import { notFound } from "next/navigation";
 import { requireVendor } from "@/lib/supabase/dal";
 import { createClient } from "@/lib/supabase/server";
 import { ProductForm } from "@/app/vendor/products/product-form";
-import { updateProduct, deleteProduct } from "@/app/vendor/products/actions";
+import {
+  updateProduct,
+  deactivateProduct,
+  reactivateProduct,
+} from "@/app/vendor/products/actions";
+import { listCategories } from "@/lib/products";
 
 export default async function EditProductPage({
   params,
@@ -13,12 +18,17 @@ export default async function EditProductPage({
   const vendor = await requireVendor();
   const supabase = await createClient();
 
-  const { data: product } = await supabase
-    .from("products")
-    .select("id, name, description, price, stock, image_url")
-    .eq("id", id)
-    .eq("vendor_id", vendor.id)
-    .maybeSingle();
+  const [{ data: product }, categories] = await Promise.all([
+    supabase
+      .from("products")
+      .select(
+        "id, name, description, price, stock, image_url, category, is_active",
+      )
+      .eq("id", id)
+      .eq("vendor_id", vendor.id)
+      .maybeSingle(),
+    listCategories(),
+  ]);
 
   if (!product) notFound();
 
@@ -30,16 +40,34 @@ export default async function EditProductPage({
       <ProductForm
         action={updateProduct.bind(null, product.id)}
         defaultValues={product}
+        categories={categories}
         submitLabel="Save changes"
       />
-      <form action={deleteProduct.bind(null, product.id)} className="mt-4">
-        <button
-          type="submit"
-          className="text-sm font-medium text-red-600 underline dark:text-red-400"
+      {product.is_active ? (
+        <form
+          action={deactivateProduct.bind(null, product.id)}
+          className="mt-4"
         >
-          Delete product
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="text-sm font-medium text-red-600 underline dark:text-red-400"
+          >
+            Remove from shop
+          </button>
+        </form>
+      ) : (
+        <form
+          action={reactivateProduct.bind(null, product.id)}
+          className="mt-4"
+        >
+          <button
+            type="submit"
+            className="text-sm font-medium text-black underline dark:text-zinc-50"
+          >
+            Restore product
+          </button>
+        </form>
+      )}
     </div>
   );
 }

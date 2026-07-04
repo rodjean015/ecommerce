@@ -11,6 +11,7 @@ const labelClasses =
 export function ProductForm({
   action,
   defaultValues,
+  categories = [],
   submitLabel,
 }: {
   action: (formData: FormData) => Promise<void>;
@@ -20,7 +21,9 @@ export function ProductForm({
     price: number;
     stock: number;
     image_url: string | null;
+    category: string | null;
   };
+  categories?: string[];
   submitLabel: string;
 }) {
   const [imageDataUrl, setImageDataUrl] = useState(
@@ -70,6 +73,23 @@ export function ProductForm({
           defaultValue={defaultValues?.description ?? ""}
           className={inputClasses}
         />
+      </div>
+      <div>
+        <label className={labelClasses} htmlFor="category">
+          Category
+        </label>
+        <input
+          id="category"
+          name="category"
+          list="category-suggestions"
+          defaultValue={defaultValues?.category ?? ""}
+          className={inputClasses}
+        />
+        <datalist id="category-suggestions">
+          {categories.map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>

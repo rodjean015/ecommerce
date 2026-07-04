@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireVendor } from "@/lib/supabase/dal";
 import { createClient } from "@/lib/supabase/server";
-import { deleteProduct } from "@/app/vendor/products/actions";
+import { deactivateProduct, reactivateProduct } from "@/app/vendor/products/actions";
 
 export default async function VendorProductsPage() {
   const vendor = await requireVendor();
@@ -9,7 +9,7 @@ export default async function VendorProductsPage() {
 
   const { data: products } = await supabase
     .from("products")
-    .select("id, name, price, stock, image_url")
+    .select("id, name, price, stock, image_url, is_active")
     .eq("vendor_id", vendor.id)
     .order("created_at", { ascending: false });
 
@@ -50,6 +50,11 @@ export default async function VendorProductsPage() {
                 <div>
                   <p className="font-medium text-black dark:text-zinc-50">
                     {product.name}
+                    {!product.is_active ? (
+                      <span className="ml-2 rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                        Inactive
+                      </span>
+                    ) : null}
                   </p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
                     ${product.price.toFixed(2)} · {product.stock} in stock
@@ -63,14 +68,25 @@ export default async function VendorProductsPage() {
                 >
                   Edit
                 </Link>
-                <form action={deleteProduct.bind(null, product.id)}>
-                  <button
-                    type="submit"
-                    className="text-sm font-medium text-red-600 underline dark:text-red-400"
-                  >
-                    Delete
-                  </button>
-                </form>
+                {product.is_active ? (
+                  <form action={deactivateProduct.bind(null, product.id)}>
+                    <button
+                      type="submit"
+                      className="text-sm font-medium text-red-600 underline dark:text-red-400"
+                    >
+                      Remove
+                    </button>
+                  </form>
+                ) : (
+                  <form action={reactivateProduct.bind(null, product.id)}>
+                    <button
+                      type="submit"
+                      className="text-sm font-medium text-black underline dark:text-zinc-50"
+                    >
+                      Restore
+                    </button>
+                  </form>
+                )}
               </div>
             </li>
           ))}

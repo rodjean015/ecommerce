@@ -45,17 +45,26 @@ create table if not exists products (
   price numeric(10, 2) not null check (price >= 0),
   stock integer not null default 0 check (stock >= 0),
   image_url text,
+  category text,
+  is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+alter table products add column if not exists category text;
+alter table products add column if not exists is_active boolean not null default true;
+
 create index if not exists products_vendor_id_idx on products (vendor_id);
+create index if not exists products_category_idx on products (category);
 
 alter table products enable row level security;
 
+-- Products are public: the landing page and catalog must work for signed-out
+-- visitors, so select is open to everyone rather than gated to authenticated.
 drop policy if exists "products_select_authenticated" on products;
-create policy "products_select_authenticated" on products
-  for select to authenticated using (true);
+drop policy if exists "products_select_public" on products;
+create policy "products_select_public" on products
+  for select using (true);
 
 drop policy if exists "products_insert_own_vendor" on products;
 create policy "products_insert_own_vendor" on products
