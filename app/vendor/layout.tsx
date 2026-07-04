@@ -3,6 +3,7 @@ import { requireVendor } from "@/lib/supabase/dal";
 import { signOut } from "@/app/auth/actions";
 import { VendorNav } from "@/app/vendor/vendor-nav";
 import { SubmitButton } from "@/app/submit-button";
+import { Logo } from "@/app/logo";
 
 export default async function VendorLayout({
   children,
@@ -19,10 +20,10 @@ export default async function VendorLayout({
             href="/vendor/products"
             className="flex items-center gap-2 text-base font-semibold text-black dark:text-zinc-50"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-sm font-bold text-background">
-              E
+            <Logo height={32} />
+            <span className="hidden text-sm font-medium text-zinc-500 sm:inline dark:text-zinc-400">
+              Vendor
             </span>
-            <span className="hidden sm:inline">Vendor</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <VendorNav />

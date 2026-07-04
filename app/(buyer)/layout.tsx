@@ -3,6 +3,7 @@ import { requireBuyer } from "@/lib/supabase/dal";
 import { signOut } from "@/app/auth/actions";
 import { BuyerNav } from "@/app/(buyer)/buyer-nav";
 import { SubmitButton } from "@/app/submit-button";
+import { Logo } from "@/app/logo";
 
 export default async function BuyerLayout({
   children,
@@ -15,14 +16,8 @@ export default async function BuyerLayout({
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
       <header className="sticky top-0 z-10 border-b border-black/[.08] bg-white/80 px-4 py-4 backdrop-blur-sm dark:border-white/[.145] dark:bg-black/80 sm:px-8">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <Link
-            href="/shop"
-            className="flex items-center gap-2 text-base font-semibold text-black dark:text-zinc-50"
-          >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-sm font-bold text-background">
-              E
-            </span>
-            <span className="hidden sm:inline">Ecomerce</span>
+          <Link href="/shop" className="flex items-center">
+            <Logo height={32} />
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <BuyerNav />

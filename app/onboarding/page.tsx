@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/supabase/dal";
 import { chooseRole } from "@/app/onboarding/actions";
 import { SubmitButton } from "@/app/submit-button";
+import { Logo } from "@/app/logo";
 
 const cardClasses =
   "flex h-full flex-col items-center gap-3 rounded-xl border border-black/[.08] bg-white p-6 text-center transition-colors hover:border-black/[.2] hover:bg-black/[.02] dark:border-white/[.145] dark:bg-zinc-950 dark:hover:border-white/[.3] dark:hover:bg-white/[.03]";
@@ -20,9 +21,7 @@ export default async function OnboardingPage() {
       />
 
       <div className="flex w-full max-w-2xl flex-col items-center gap-8">
-        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-sm font-bold text-background">
-          E
-        </span>
+        <Logo height={40} responsive={false} />
 
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">

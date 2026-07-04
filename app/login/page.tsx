@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signInWithGoogle, signInWithX } from "@/app/auth/actions";
 import { SubmitButton } from "@/app/submit-button";
+import { Logo } from "@/app/logo";
 
 export default function LoginPage() {
   return (
@@ -11,14 +12,8 @@ export default function LoginPage() {
       />
 
       <div className="flex w-full max-w-sm flex-col items-center gap-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-base font-semibold text-black dark:text-zinc-50"
-        >
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-sm font-bold text-background">
-            E
-          </span>
-          Ecomerce
+        <Link href="/" className="flex items-center">
+          <Logo height={40} responsive={false} />
         </Link>
 
         <div className="w-full rounded-2xl border border-black/[.08] bg-white p-8 shadow-sm dark:border-white/[.145] dark:bg-zinc-950">
