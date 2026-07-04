@@ -57,9 +57,9 @@ export default async function VendorOrdersPage() {
           {sales.map((sale) => (
             <li
               key={sale.id}
-              className="flex items-center justify-between rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950"
+              className="flex flex-col gap-1 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
             >
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium text-black dark:text-zinc-50">
                   {sale.products?.[0]?.name ?? "Deleted product"}
                 </p>
@@ -68,7 +68,7 @@ export default async function VendorOrdersPage() {
                   {new Date(sale.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <p className="font-medium text-black dark:text-zinc-50">
+              <p className="shrink-0 font-medium text-black dark:text-zinc-50">
                 ${(sale.quantity * sale.unit_price).toFixed(2)}
               </p>
             </li>

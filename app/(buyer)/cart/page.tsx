@@ -82,9 +82,9 @@ export default function CartPage() {
         {items.map((item) => (
           <li
             key={item.productId}
-            className="flex items-center justify-between gap-4 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950"
+            className="flex flex-col gap-3 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 items-center gap-4">
               <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900">
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -99,8 +99,8 @@ export default function CartPage() {
                   </div>
                 )}
               </div>
-              <div>
-                <p className="font-medium text-black dark:text-zinc-50">
+              <div className="min-w-0">
+                <p className="truncate font-medium text-black dark:text-zinc-50">
                   {item.name}
                 </p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -108,7 +108,7 @@ export default function CartPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-3 pl-[4.5rem] sm:pl-0">
               <div className="flex items-center rounded-full border border-black/[.08] dark:border-white/[.145]">
                 <button
                   type="button"

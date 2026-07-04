@@ -9,6 +9,7 @@ import {
   reactivateProduct,
 } from "@/app/vendor/products/actions";
 import { listCategories } from "@/lib/products";
+import { SubmitButton } from "@/app/submit-button";
 
 export default async function EditProductPage({
   params,
@@ -56,24 +57,24 @@ export default async function EditProductPage({
             action={deactivateProduct.bind(null, product.id)}
             className="mt-4"
           >
-            <button
-              type="submit"
-              className="text-sm font-medium text-red-600 underline dark:text-red-400"
+            <SubmitButton
+              pendingText="Removing…"
+              className="text-sm font-medium text-red-600 underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400"
             >
               Remove from shop
-            </button>
+            </SubmitButton>
           </form>
         ) : (
           <form
             action={reactivateProduct.bind(null, product.id)}
             className="mt-4"
           >
-            <button
-              type="submit"
-              className="text-sm font-medium text-black underline dark:text-zinc-50"
+            <SubmitButton
+              pendingText="Restoring…"
+              className="text-sm font-medium text-black underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-zinc-50"
             >
               Restore product
-            </button>
+            </SubmitButton>
           </form>
         )}
       </div>

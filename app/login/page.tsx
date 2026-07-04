@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signInWithGoogle, signInWithX } from "@/app/auth/actions";
+import { SubmitButton } from "@/app/submit-button";
 
 export default function LoginPage() {
   return (
@@ -32,9 +33,9 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-3">
             <form action={signInWithGoogle}>
-              <button
-                type="submit"
-                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-black/[.08] px-5 text-base font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
+              <SubmitButton
+                pendingText="Redirecting…"
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-black/[.08] px-5 text-base font-medium text-black transition-colors hover:bg-black/[.04] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -60,12 +61,12 @@ export default function LoginPage() {
                   />
                 </svg>
                 Continue with Google
-              </button>
+              </SubmitButton>
             </form>
             <form action={signInWithX}>
-              <button
-                type="submit"
-                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-black/[.08] px-5 text-base font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
+              <SubmitButton
+                pendingText="Redirecting…"
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-black/[.08] px-5 text-base font-medium text-black transition-colors hover:bg-black/[.04] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -77,7 +78,7 @@ export default function LoginPage() {
                   <path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.48 3.24H4.3z" />
                 </svg>
                 Continue with X
-              </button>
+              </SubmitButton>
             </form>
           </div>
         </div>

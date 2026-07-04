@@ -2,9 +2,18 @@ import Link from "next/link";
 import { AddToCartButton } from "@/app/(buyer)/shop/add-to-cart-button";
 import type { Product } from "@/lib/products";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  index = 0,
+}: {
+  product: Product;
+  index?: number;
+}) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-black/[.08] bg-white p-4 transition-shadow hover:shadow-md dark:border-white/[.145] dark:bg-zinc-950">
+    <div
+      style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
+      className="animate-fade-in-up flex flex-col gap-3 rounded-xl border border-black/[.08] bg-white p-4 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/[.145] dark:bg-zinc-950"
+    >
       <Link href={`/products/${product.id}`} className="flex flex-col gap-3">
         <div className="aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900">
           {product.image_url ? (

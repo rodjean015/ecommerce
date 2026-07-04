@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/supabase/dal";
 import { chooseRole } from "@/app/onboarding/actions";
+import { SubmitButton } from "@/app/submit-button";
 
 const cardClasses =
   "flex h-full flex-col items-center gap-3 rounded-xl border border-black/[.08] bg-white p-6 text-center transition-colors hover:border-black/[.2] hover:bg-black/[.02] dark:border-white/[.145] dark:bg-zinc-950 dark:hover:border-white/[.3] dark:hover:bg-white/[.03]";
@@ -39,7 +40,10 @@ export default async function OnboardingPage() {
               await chooseRole("buyer");
             }}
           >
-            <button type="submit" className={`${cardClasses} w-full`}>
+            <SubmitButton
+              pendingText="Setting up…"
+              className={`${cardClasses} w-full disabled:cursor-not-allowed disabled:opacity-60`}
+            >
               <svg
                 viewBox="0 0 24 24"
                 width="28"
@@ -61,7 +65,7 @@ export default async function OnboardingPage() {
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
                 Browse the catalog and check out from independent vendors.
               </span>
-            </button>
+            </SubmitButton>
           </form>
 
           <form
@@ -70,7 +74,10 @@ export default async function OnboardingPage() {
               await chooseRole("vendor");
             }}
           >
-            <button type="submit" className={`${cardClasses} w-full`}>
+            <SubmitButton
+              pendingText="Setting up…"
+              className={`${cardClasses} w-full disabled:cursor-not-allowed disabled:opacity-60`}
+            >
               <svg
                 viewBox="0 0 24 24"
                 width="28"
@@ -92,7 +99,7 @@ export default async function OnboardingPage() {
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
                 List products and manage orders as a vendor.
               </span>
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </div>

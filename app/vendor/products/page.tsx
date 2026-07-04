@@ -5,6 +5,7 @@ import {
   deactivateProduct,
   reactivateProduct,
 } from "@/app/vendor/products/actions";
+import { SubmitButton } from "@/app/submit-button";
 
 export default async function VendorProductsPage() {
   const vendor = await requireVendor();
@@ -21,7 +22,7 @@ export default async function VendorProductsPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
             Your products
@@ -35,7 +36,7 @@ export default async function VendorProductsPage() {
         </div>
         <Link
           href="/vendor/products/new"
-          className="flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+          className="flex shrink-0 items-center gap-1.5 self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
         >
           <svg
             viewBox="0 0 24 24"
@@ -86,11 +87,11 @@ export default async function VendorProductsPage() {
           {products.map((product) => (
             <li
               key={product.id}
-              className={`flex items-center justify-between rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 ${
+              className={`flex flex-col gap-3 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between ${
                 product.is_active ? "" : "opacity-60"
               }`}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex min-w-0 items-center gap-4">
                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900">
                   {product.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -105,8 +106,8 @@ export default async function VendorProductsPage() {
                     </div>
                   )}
                 </div>
-                <div>
-                  <p className="flex items-center gap-2 font-medium text-black dark:text-zinc-50">
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 font-medium text-black dark:text-zinc-50">
                     {product.name}
                     {!product.is_active ? (
                       <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
@@ -119,7 +120,7 @@ export default async function VendorProductsPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex shrink-0 items-center gap-4 pl-[4.5rem] sm:pl-0">
                 <Link
                   href={`/vendor/products/${product.id}/edit`}
                   className="text-sm font-medium underline text-black dark:text-zinc-50"
@@ -128,21 +129,21 @@ export default async function VendorProductsPage() {
                 </Link>
                 {product.is_active ? (
                   <form action={deactivateProduct.bind(null, product.id)}>
-                    <button
-                      type="submit"
-                      className="text-sm font-medium text-red-600 underline dark:text-red-400"
+                    <SubmitButton
+                      pendingText="Removing…"
+                      className="text-sm font-medium text-red-600 underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400"
                     >
                       Remove
-                    </button>
+                    </SubmitButton>
                   </form>
                 ) : (
                   <form action={reactivateProduct.bind(null, product.id)}>
-                    <button
-                      type="submit"
-                      className="text-sm font-medium text-black underline dark:text-zinc-50"
+                    <SubmitButton
+                      pendingText="Restoring…"
+                      className="text-sm font-medium text-black underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-zinc-50"
                     >
                       Restore
-                    </button>
+                    </SubmitButton>
                   </form>
                 )}
               </div>

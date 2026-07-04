@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireVendor } from "@/lib/supabase/dal";
 import { signOut } from "@/app/auth/actions";
 import { VendorNav } from "@/app/vendor/vendor-nav";
+import { SubmitButton } from "@/app/submit-button";
 
 export default async function VendorLayout({
   children,
@@ -12,7 +13,7 @@ export default async function VendorLayout({
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
-      <header className="sticky top-0 z-10 border-b border-black/[.08] bg-white/80 px-6 py-4 backdrop-blur-sm dark:border-white/[.145] dark:bg-black/80 sm:px-8">
+      <header className="sticky top-0 z-10 border-b border-black/[.08] bg-white/80 px-4 py-4 backdrop-blur-sm dark:border-white/[.145] dark:bg-black/80 sm:px-8">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <Link
             href="/vendor/products"
@@ -21,17 +22,17 @@ export default async function VendorLayout({
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-sm font-bold text-background">
               E
             </span>
-            Vendor
+            <span className="hidden sm:inline">Vendor</span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <VendorNav />
             <form action={signOut}>
-              <button
-                type="submit"
-                className="text-sm font-medium text-zinc-600 underline dark:text-zinc-400"
+              <SubmitButton
+                pendingText="Signing out…"
+                className="text-sm font-medium text-zinc-600 underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-zinc-400"
               >
                 Sign out
-              </button>
+              </SubmitButton>
             </form>
           </div>
         </div>

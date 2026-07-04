@@ -97,26 +97,35 @@ export default async function Home() {
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_50%_-20%,rgba(23,23,23,0.06),transparent)] dark:bg-[radial-gradient(ellipse_60%_50%_at_50%_-20%,rgba(255,255,255,0.08),transparent)]"
         />
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-          <span className="rounded-full border border-black/[.08] px-3 py-1 text-xs font-medium text-zinc-600 dark:border-white/[.145] dark:text-zinc-400">
+          <span className="animate-fade-in-up rounded-full border border-black/[.08] px-3 py-1 text-xs font-medium text-zinc-600 dark:border-white/[.145] dark:text-zinc-400">
             A marketplace for independent vendors
           </span>
-          <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight text-black sm:text-6xl dark:text-zinc-50">
+          <h1
+            style={{ animationDelay: "80ms" }}
+            className="animate-fade-in-up text-4xl font-semibold leading-[1.1] tracking-tight text-black sm:text-6xl dark:text-zinc-50"
+          >
             Shop unique products from independent vendors
           </h1>
-          <p className="max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
+          <p
+            style={{ animationDelay: "160ms" }}
+            className="animate-fade-in-up max-w-xl text-lg text-zinc-600 dark:text-zinc-400"
+          >
             Browse a growing catalog of goods listed by small vendors, or
             sign in to start selling your own.
           </p>
-          <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+          <div
+            style={{ animationDelay: "240ms" }}
+            className="animate-fade-in-up mt-2 flex flex-col gap-3 sm:flex-row"
+          >
             <Link
               href="/products"
-              className="flex h-12 items-center justify-center rounded-full bg-foreground px-6 text-base font-medium text-background shadow-sm transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+              className="flex h-12 items-center justify-center rounded-full bg-foreground px-6 text-base font-medium text-background shadow-sm transition-all hover:bg-[#383838] active:scale-95 dark:hover:bg-[#ccc]"
             >
               Browse products
             </Link>
             <Link
               href="/login"
-              className="flex h-12 items-center justify-center rounded-full border border-black/[.08] px-6 text-base font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
+              className="flex h-12 items-center justify-center rounded-full border border-black/[.08] px-6 text-base font-medium text-black transition-all hover:bg-black/[.04] active:scale-95 dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
             >
               Sign in
             </Link>
@@ -238,8 +247,8 @@ export default async function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-            {featured.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {featured.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
             ))}
           </div>
         )}
