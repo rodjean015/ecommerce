@@ -1,8 +1,23 @@
 import Image from "next/image";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <div className="w-full max-w-3xl px-16 pt-6 text-right">
+        <Link
+          href={user ? "/dashboard" : "/login"}
+          className="text-sm font-medium text-black underline dark:text-zinc-50"
+        >
+          {user ? "Dashboard" : "Sign in"}
+        </Link>
+      </div>
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         <Image
           className="dark:invert"
