@@ -95,7 +95,7 @@ export function ProductForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelClasses} htmlFor="price">
-            Price (USD)
+            Price (PHP)
           </label>
           <input
             id="price"

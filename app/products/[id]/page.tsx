@@ -4,6 +4,7 @@ import { getProduct } from "@/lib/products";
 import { AddToCartButton } from "@/app/(buyer)/shop/add-to-cart-button";
 import { PublicHeader } from "@/app/public-header";
 import { PublicFooter } from "@/app/public-footer";
+import { formatPrice } from "@/lib/format";
 
 export default async function ProductDetailPage({
   params,
@@ -50,7 +51,7 @@ export default async function ProductDetailPage({
               {product.name}
             </h1>
             <p className="text-xl font-medium text-black dark:text-zinc-50">
-              ${product.price.toFixed(2)}
+              {formatPrice(product.price)}
             </p>
             {product.description ? (
               <p className="text-zinc-600 dark:text-zinc-400">

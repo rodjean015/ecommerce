@@ -6,6 +6,7 @@ import {
   reactivateProduct,
 } from "@/app/vendor/products/actions";
 import { SubmitButton } from "@/app/submit-button";
+import { formatPrice } from "@/lib/format";
 
 export default async function VendorProductsPage() {
   const vendor = await requireVendor();
@@ -116,7 +117,7 @@ export default async function VendorProductsPage() {
                     ) : null}
                   </p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    ${product.price.toFixed(2)} · {product.stock} in stock
+                    {formatPrice(product.price)} · {product.stock} in stock
                   </p>
                 </div>
               </div>

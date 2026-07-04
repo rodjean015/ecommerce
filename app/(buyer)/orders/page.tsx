@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireBuyer } from "@/lib/supabase/dal";
 import { createClient } from "@/lib/supabase/server";
 import { OrderStatusBadge } from "@/app/(buyer)/order-status-badge";
+import { formatPrice } from "@/lib/format";
 
 export default async function OrdersPage() {
   const buyer = await requireBuyer();
@@ -67,7 +68,7 @@ export default async function OrdersPage() {
                   </p>
                 </div>
                 <span className="font-medium text-black dark:text-zinc-50">
-                  ${order.total.toFixed(2)}
+                  {formatPrice(order.total)}
                 </span>
               </Link>
             </li>

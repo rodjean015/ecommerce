@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AddToCartButton } from "@/app/(buyer)/shop/add-to-cart-button";
 import type { Product } from "@/lib/products";
+import { formatPrice } from "@/lib/format";
 
 export function ProductCard({
   product,
@@ -47,7 +48,7 @@ export function ProductCard({
       </Link>
       <div className="mt-auto flex items-center justify-between">
         <span className="font-medium text-black dark:text-zinc-50">
-          ${product.price.toFixed(2)}
+          {formatPrice(product.price)}
         </span>
         <AddToCartButton
           productId={product.id}

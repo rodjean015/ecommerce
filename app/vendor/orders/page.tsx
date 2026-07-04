@@ -1,5 +1,6 @@
 import { requireVendor } from "@/lib/supabase/dal";
 import { createClient } from "@/lib/supabase/server";
+import { formatPrice } from "@/lib/format";
 
 export default async function VendorOrdersPage() {
   const vendor = await requireVendor();
@@ -23,7 +24,7 @@ export default async function VendorOrdersPage() {
       </h1>
       <p className="mb-6 mt-1 text-sm text-zinc-600 dark:text-zinc-400">
         {sales?.length
-          ? `${sales.length} sale${sales.length === 1 ? "" : "s"} · $${totalRevenue.toFixed(2)} total revenue`
+          ? `${sales.length} sale${sales.length === 1 ? "" : "s"} · ${formatPrice(totalRevenue)} total revenue`
           : "Your sales history will show up here."}
       </p>
 
@@ -64,12 +65,12 @@ export default async function VendorOrdersPage() {
                   {sale.products?.[0]?.name ?? "Deleted product"}
                 </p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {sale.quantity} × ${sale.unit_price.toFixed(2)} ·{" "}
+                  {sale.quantity} × {formatPrice(sale.unit_price)} ·{" "}
                   {new Date(sale.created_at).toLocaleDateString()}
                 </p>
               </div>
               <p className="shrink-0 font-medium text-black dark:text-zinc-50">
-                ${(sale.quantity * sale.unit_price).toFixed(2)}
+                {formatPrice(sale.quantity * sale.unit_price)}
               </p>
             </li>
           ))}

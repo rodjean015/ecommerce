@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { checkout } from "@/app/(buyer)/cart/actions";
+import { formatPrice } from "@/lib/format";
 
 export default function CartPage() {
   const { items, setQuantity, removeItem, clear } = useCart();
@@ -104,7 +105,7 @@ export default function CartPage() {
                   {item.name}
                 </p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  ${item.price.toFixed(2)} each
+                  {formatPrice(item.price)} each
                 </p>
               </div>
             </div>
@@ -144,7 +145,7 @@ export default function CartPage() {
 
       <div className="mt-6 flex items-center justify-between rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950">
         <span className="text-lg font-medium text-black dark:text-zinc-50">
-          Total: ${total.toFixed(2)}
+          Total: {formatPrice(total)}
         </span>
         <button
           type="button"
