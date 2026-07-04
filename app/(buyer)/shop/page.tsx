@@ -27,9 +27,29 @@ export default async function ShopPage({
       />
 
       {!products.length ? (
-        <p className="text-zinc-600 dark:text-zinc-400">
-          No products match your search.
-        </p>
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
+          <svg
+            viewBox="0 0 24 24"
+            width="28"
+            height="28"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="text-zinc-400 dark:text-zinc-600"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Zm0 0 6 6M15 15l6 6"
+            />
+          </svg>
+          <p className="font-medium text-black dark:text-zinc-50">
+            No products match your search
+          </p>
+          <p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-400">
+            Try a different search term or clear the filters.
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {products.map((product) => (

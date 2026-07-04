@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listProducts } from "@/lib/products";
+import { listProducts, listCategories } from "@/lib/products";
 import { ProductCard } from "@/app/product-card";
 import { PublicHeader } from "@/app/public-header";
 import { PublicFooter } from "@/app/public-footer";
@@ -43,8 +43,49 @@ const VALUE_PROPS = [
   },
 ];
 
+const STEPS = [
+  {
+    title: "Browse the catalog",
+    description: "Look through listings from independent vendors — no account needed.",
+  },
+  {
+    title: "Add items to your cart",
+    description: "Your cart is saved in your browser, so it's there when you come back.",
+  },
+  {
+    title: "Sign in and check out",
+    description: "Sign in with Google or X only when you're ready to complete your order.",
+  },
+];
+
+const FAQS = [
+  {
+    question: "Do I need an account to browse?",
+    answer:
+      "No — you can look through the full catalog and add items to your cart without signing in. You'll only need an account to check out.",
+  },
+  {
+    question: "How do I sign in?",
+    answer:
+      "Sign in with your Google or X account — there's no separate password to create or remember.",
+  },
+  {
+    question: "How do I start selling?",
+    answer:
+      "Sign in and choose \"I want to sell\" during onboarding. You'll get access to a vendor dashboard where you can list products and track sales.",
+  },
+  {
+    question: "Can I switch between buying and selling later?",
+    answer:
+      "Your role is chosen once the first time you sign in and can't be changed afterward, so pick the one that fits before continuing.",
+  },
+];
+
 export default async function Home() {
-  const featured = await listProducts({ limit: 8 });
+  const [featured, categories] = await Promise.all([
+    listProducts({ limit: 8 }),
+    listCategories(),
+  ]);
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -109,6 +150,50 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="border-b border-black/[.08] px-6 py-16 sm:px-8">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-10 text-center text-xl font-semibold text-black dark:text-zinc-50">
+            How it works
+          </h2>
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+            {STEPS.map((step, index) => (
+              <div key={step.title} className="flex flex-col items-center gap-3 text-center">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-sm font-semibold text-background">
+                  {index + 1}
+                </span>
+                <h3 className="font-medium text-black dark:text-zinc-50">
+                  {step.title}
+                </h3>
+                <p className="max-w-xs text-sm text-zinc-600 dark:text-zinc-400">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {categories.length ? (
+        <section className="border-b border-black/[.08] bg-white px-6 py-16 dark:border-white/[.145] dark:bg-zinc-950 sm:px-8">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="mb-6 text-xl font-semibold text-black dark:text-zinc-50">
+              Shop by category
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {categories.map((category) => (
+                <Link
+                  key={category}
+                  href={`/products?category=${encodeURIComponent(category)}`}
+                  className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+                >
+                  {category}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="mx-auto w-full max-w-5xl flex-1 px-6 py-16 sm:px-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -128,9 +213,29 @@ export default async function Home() {
         </div>
 
         {!featured.length ? (
-          <p className="text-zinc-600 dark:text-zinc-400">
-            No products available yet.
-          </p>
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
+            <svg
+              viewBox="0 0 24 24"
+              width="28"
+              height="28"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="text-zinc-400 dark:text-zinc-600"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 9.75 12 4l9 5.75M4.5 10.5v9h15v-9M9.75 19.5v-6h4.5v6"
+              />
+            </svg>
+            <p className="font-medium text-black dark:text-zinc-50">
+              No products available yet
+            </p>
+            <p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-400">
+              Check back soon — new listings show up here.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
             {featured.map((product) => (
@@ -138,6 +243,56 @@ export default async function Home() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="border-y border-black/[.08] bg-white px-6 py-16 dark:border-white/[.145] dark:bg-zinc-950 sm:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
+          <div>
+            <h2 className="text-xl font-semibold text-black dark:text-zinc-50">
+              Have something to sell?
+            </h2>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              Sign in and list your first product in minutes — no setup fees.
+            </p>
+          </div>
+          <Link
+            href="/login"
+            className="flex h-12 shrink-0 items-center justify-center rounded-full bg-foreground px-6 text-base font-medium text-background shadow-sm transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+          >
+            Become a vendor
+          </Link>
+        </div>
+      </section>
+
+      <section className="px-6 py-16 sm:px-8">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="mb-6 text-xl font-semibold text-black dark:text-zinc-50">
+            Frequently asked questions
+          </h2>
+          <div className="flex flex-col divide-y divide-black/[.08] dark:divide-white/[.145]">
+            {FAQS.map((faq) => (
+              <details key={faq.question} className="group py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-black dark:text-zinc-50">
+                  {faq.question}
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="shrink-0 transition-transform group-open:rotate-45"
+                  >
+                    <path strokeLinecap="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </summary>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                  {faq.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
       </section>
 
       <PublicFooter />

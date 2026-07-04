@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/supabase/dal";
 import { chooseRole } from "@/app/onboarding/actions";
 
+const cardClasses =
+  "flex h-full flex-col items-center gap-3 rounded-xl border border-black/[.08] bg-white p-6 text-center transition-colors hover:border-black/[.2] hover:bg-black/[.02] dark:border-white/[.145] dark:bg-zinc-950 dark:hover:border-white/[.3] dark:hover:bg-white/[.03]";
+
 export default async function OnboardingPage() {
   const profile = await getProfile();
   if (profile) {
@@ -9,39 +12,86 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 dark:bg-black">
-      <div className="w-full max-w-md rounded-lg border border-black/[.08] bg-white p-8 text-center dark:border-white/[.145] dark:bg-zinc-950">
-        <h1 className="mb-2 text-2xl font-semibold text-black dark:text-zinc-50">
-          How will you use this store?
-        </h1>
-        <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
-          You can&apos;t change this later, so pick the one that fits.
-        </p>
-        <div className="flex flex-col gap-3">
+    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-zinc-50 px-6 py-16 dark:bg-black">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,rgba(23,23,23,0.06),transparent)] dark:bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,rgba(255,255,255,0.08),transparent)]"
+      />
+
+      <div className="flex w-full max-w-2xl flex-col items-center gap-8">
+        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-sm font-bold text-background">
+          E
+        </span>
+
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
+            How will you use this store?
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            You can&apos;t change this later, so pick the one that fits.
+          </p>
+        </div>
+
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
           <form
             action={async () => {
               "use server";
               await chooseRole("buyer");
             }}
           >
-            <button
-              type="submit"
-              className="flex h-12 w-full items-center justify-center rounded-full bg-foreground px-5 text-base font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-            >
-              I want to buy
+            <button type="submit" className={`${cardClasses} w-full`}>
+              <svg
+                viewBox="0 0 24 24"
+                width="28"
+                height="28"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="text-black dark:text-zinc-50"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 4.5h2.25l1.5 12.75h10.5l1.5-9H6.375M9 21a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm7.5 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+                />
+              </svg>
+              <span className="text-base font-semibold text-black dark:text-zinc-50">
+                I want to buy
+              </span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                Browse the catalog and check out from independent vendors.
+              </span>
             </button>
           </form>
+
           <form
             action={async () => {
               "use server";
               await chooseRole("vendor");
             }}
           >
-            <button
-              type="submit"
-              className="flex h-12 w-full items-center justify-center rounded-full border border-black/[.08] px-5 text-base font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/[.145] dark:text-zinc-50 dark:hover:bg-[#1a1a1a]"
-            >
-              I want to sell
+            <button type="submit" className={`${cardClasses} w-full`}>
+              <svg
+                viewBox="0 0 24 24"
+                width="28"
+                height="28"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="text-black dark:text-zinc-50"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 9.75 12 4l9 5.75M4.5 10.5v9h15v-9M9.75 19.5v-6h4.5v6"
+                />
+              </svg>
+              <span className="text-base font-semibold text-black dark:text-zinc-50">
+                I want to sell
+              </span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                List products and manage orders as a vendor.
+              </span>
             </button>
           </form>
         </div>

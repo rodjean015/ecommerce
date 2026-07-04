@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireBuyer } from "@/lib/supabase/dal";
 import { createClient } from "@/lib/supabase/server";
+import { OrderStatusBadge } from "@/app/(buyer)/order-status-badge";
 
 export default async function OrderDetailPage({
   params,
@@ -27,18 +29,27 @@ export default async function OrderDetailPage({
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <h1 className="mb-2 text-2xl font-semibold text-black dark:text-zinc-50">
-        Order #{order.id.slice(0, 8)}
-      </h1>
+      <Link
+        href="/orders"
+        className="mb-4 inline-block text-sm font-medium text-zinc-600 underline dark:text-zinc-400"
+      >
+        ← Back to orders
+      </Link>
+      <div className="mb-1 flex items-center gap-3">
+        <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
+          Order #{order.id.slice(0, 8)}
+        </h1>
+        <OrderStatusBadge status={order.status} />
+      </div>
       <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
-        Placed {new Date(order.created_at).toLocaleString()} · {order.status}
+        Placed {new Date(order.created_at).toLocaleString()}
       </p>
 
       <ul className="flex flex-col gap-3">
         {items?.map((item) => (
           <li
             key={item.id}
-            className="flex items-center justify-between rounded-lg border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950"
+            className="flex items-center justify-between rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950"
           >
             <span className="text-black dark:text-zinc-50">
               {item.products?.[0]?.name ?? "Deleted product"} × {item.quantity}
@@ -50,7 +61,7 @@ export default async function OrderDetailPage({
         ))}
       </ul>
 
-      <div className="mt-6 flex justify-end border-t border-black/[.08] pt-4 text-lg font-medium text-black dark:border-white/[.145] dark:text-zinc-50">
+      <div className="mt-6 flex justify-end rounded-xl border border-black/[.08] bg-white p-4 text-lg font-medium text-black dark:border-white/[.145] dark:bg-zinc-950 dark:text-zinc-50">
         Total: ${order.total.toFixed(2)}
       </div>
     </div>
