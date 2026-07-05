@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const inputClasses =
-  "rounded-lg border border-black/[.08] bg-white px-3 py-2 text-sm text-black transition-colors focus:border-black/20 focus:outline-none focus:ring-2 focus:ring-black/10 dark:border-white/[.145] dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-white/30 dark:focus:ring-white/20";
+  "border border-black/[.08] bg-white px-3 py-2 text-sm text-black transition-colors focus:border-black/20 focus:outline-none focus:ring-2 focus:ring-black/10 dark:border-white/[.145] dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-white/30 dark:focus:ring-white/20";
 
 function buildHref(base: string, params: { q?: string; category?: string }) {
   const search = new URLSearchParams();

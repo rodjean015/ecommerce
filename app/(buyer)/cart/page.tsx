@@ -41,7 +41,7 @@ export default function CartPage() {
         <h1 className="mb-6 text-2xl font-semibold text-black dark:text-zinc-50">
           Cart
         </h1>
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
+        <div className="flex flex-col items-center gap-3 border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
           <svg
             viewBox="0 0 24 24"
             width="28"
@@ -83,10 +83,10 @@ export default function CartPage() {
         {items.map((item) => (
           <li
             key={item.productId}
-            className="flex flex-col gap-3 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex min-w-0 items-center gap-4">
-              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900">
+              <div className="h-14 w-14 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -143,7 +143,7 @@ export default function CartPage() {
         ))}
       </ul>
 
-      <div className="mt-6 flex items-center justify-between rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950">
+      <div className="mt-6 flex items-center justify-between border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950">
         <span className="text-lg font-medium text-black dark:text-zinc-50">
           Total: {formatPrice(total)}
         </span>
@@ -158,7 +158,7 @@ export default function CartPage() {
       </div>
 
       {error ? (
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
+        <div className="mt-3 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
           {error}
         </div>
       ) : null}

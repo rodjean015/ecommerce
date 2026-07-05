@@ -10,7 +10,7 @@ export function PublicFooter() {
           <Link href="/products">Shop</Link>
           <Link href="/login">Sign in</Link>
         </nav>
-        <span>© {new Date().getFullYear()} CheckMeOutPH. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} checkmeoutph. All rights reserved.</span>
       </div>
     </footer>
   );

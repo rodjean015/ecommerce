@@ -27,7 +27,7 @@ export default async function ProductDetailPage({
           Back to shop
         </Link>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-          <div className="aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900">
+          <div className="aspect-square w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
             {product.image_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img

@@ -21,9 +21,6 @@ export default async function VendorLayout({
             className="flex items-center gap-2 text-base font-semibold text-black dark:text-zinc-50"
           >
             <Logo height={32} />
-            <span className="hidden text-sm font-medium text-zinc-500 sm:inline dark:text-zinc-400">
-              Vendor
-            </span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <VendorNav />

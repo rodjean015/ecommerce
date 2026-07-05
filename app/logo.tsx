@@ -11,7 +11,7 @@ export function Logo({
     return (
       <Image
         src="/logo-full.png"
-        alt="CheckMeOutPH"
+        alt="checkmeoutph"
         width={1054}
         height={286}
         priority
@@ -24,7 +24,7 @@ export function Logo({
     <>
       <Image
         src="/logo-icon.png"
-        alt="CheckMeOutPH"
+        alt="checkmeoutph"
         width={327}
         height={286}
         priority
@@ -33,7 +33,7 @@ export function Logo({
       />
       <Image
         src="/logo-full.png"
-        alt="CheckMeOutPH"
+        alt="checkmeoutph"
         width={1054}
         height={286}
         priority

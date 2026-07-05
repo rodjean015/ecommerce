@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CheckMeOutPH — Shop from independent vendors",
+  title: "checkmeoutph — Shop from independent vendors",
   description:
     "Browse and buy products from independent vendors, or sign in to start selling your own.",
 };

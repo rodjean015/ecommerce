@@ -10,8 +10,8 @@ export default function Loading() {
         <Skeleton className="mb-2 h-7 w-24" />
         <Skeleton className="mb-6 h-4 w-40" />
         <div className="mb-6 flex gap-3">
-          <Skeleton className="h-10 flex-1 rounded-lg" />
-          <Skeleton className="h-10 w-40 rounded-lg" />
+          <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 w-40" />
           <Skeleton className="h-10 w-24 rounded-full" />
         </div>
         <ProductGridSkeleton />

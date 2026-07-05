@@ -54,7 +54,7 @@ export default async function VendorProductsPage() {
       </div>
 
       {!products?.length ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
+        <div className="flex flex-col items-center gap-3 border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
           <svg
             viewBox="0 0 24 24"
             width="28"
@@ -88,14 +88,13 @@ export default async function VendorProductsPage() {
           {products.map((product) => (
             <li
               key={product.id}
-              className={`flex flex-col gap-3 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between ${
+              className={`flex flex-col gap-3 border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between ${
                 product.is_active ? "" : "opacity-60"
               }`}
             >
               <div className="flex min-w-0 items-center gap-4">
-                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-900">
+                <div className="h-14 w-14 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
                   {product.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={product.image_url}
                       alt={product.name}
