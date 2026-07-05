@@ -1,6 +1,6 @@
 import { listProducts, listCategories } from "@/lib/products";
-import { ProductCard } from "@/app/product-card";
-import { ProductFilterForm } from "@/app/product-filter-form";
+import { ProductCard } from "@/app/component/product-card";
+import { ProductFilterForm } from "@/app/component/product-filter-form";
 
 export default async function ShopPage({
   searchParams,

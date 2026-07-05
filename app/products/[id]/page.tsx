@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
 import { AddToCartButton } from "@/app/(buyer)/shop/add-to-cart-button";
-import { PublicHeader } from "@/app/public-header";
-import { PublicFooter } from "@/app/public-footer";
+import { PublicHeader } from "@/app/component/public-header";
+import { PublicFooter } from "@/app/component/public-footer";
 import { formatPrice } from "@/lib/format";
 
 export default async function ProductDetailPage({

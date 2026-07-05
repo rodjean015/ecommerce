@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { listProducts, listCategories } from "@/lib/products";
-import { ProductCard } from "@/app/product-card";
-import { ProductFilterForm } from "@/app/product-filter-form";
-import { PublicHeader } from "@/app/public-header";
-import { PublicFooter } from "@/app/public-footer";
+import { ProductCard } from "@/app/component/product-card";
+import { ProductFilterForm } from "@/app/component/product-filter-form";
+import { PublicHeader } from "@/app/component/public-header";
+import { PublicFooter } from "@/app/component/public-footer";
 
 export default async function ProductsPage({
   searchParams,

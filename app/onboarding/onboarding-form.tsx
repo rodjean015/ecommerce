@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { completeOnboarding } from "@/app/onboarding/actions";
-import { SubmitButton } from "@/app/submit-button";
+import { SubmitButton } from "@/app/component/submit-button";
 
 const cardClasses =
   "flex h-full flex-col items-center gap-3 rounded-xl border border-black/[.08] bg-white p-6 text-center transition-colors hover:border-black/[.2] hover:bg-black/[.02] dark:border-white/[.145] dark:bg-zinc-950 dark:hover:border-white/[.3] dark:hover:bg-white/[.03]";

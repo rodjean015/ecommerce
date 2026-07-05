@@ -8,11 +8,15 @@ export default async function OrdersPage() {
   const buyer = await requireBuyer();
   const supabase = await createClient();
 
-  const { data: orders } = await supabase
+  const { data: orders, error } = await supabase
     .from("orders")
     .select("id, total, status, created_at")
     .eq("buyer_id", buyer.id)
     .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("OrdersPage: orders select failed", error);
+  }
 
   return (
     <div className="mx-auto w-full max-w-2xl">
@@ -56,7 +60,7 @@ export default async function OrdersPage() {
             <li key={order.id}>
               <Link
                 href={`/orders/${order.id}`}
-                className="flex items-center justify-between rounded-xl border border-black/[.08] bg-white p-4 transition-shadow hover:shadow-md dark:border-white/[.145] dark:bg-zinc-950"
+                className="flex items-center justify-between border border-black/[.08] bg-white p-4 transition-shadow hover:shadow-md dark:border-white/[.145] dark:bg-zinc-950"
               >
                 <div>
                   <p className="flex items-center gap-2 font-medium text-black dark:text-zinc-50">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getAuthUser } from "@/lib/supabase/dal";
 import { CartBadge } from "@/app/(buyer)/cart-badge";
-import { Logo } from "@/app/logo";
+import { Logo } from "@/app/component/logo";
 
 export async function PublicHeader() {
   const user = await getAuthUser();

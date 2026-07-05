@@ -5,7 +5,7 @@ import {
   deactivateProduct,
   reactivateProduct,
 } from "@/app/vendor/products/actions";
-import { SubmitButton } from "@/app/submit-button";
+import { SubmitButton } from "@/app/component/submit-button";
 import { formatPrice } from "@/lib/format";
 
 export default async function VendorProductsPage() {

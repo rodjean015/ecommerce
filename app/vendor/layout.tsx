@@ -2,8 +2,8 @@ import Link from "next/link";
 import { requireVendor } from "@/lib/supabase/dal";
 import { signOut } from "@/app/auth/actions";
 import { VendorNav } from "@/app/vendor/vendor-nav";
-import { SubmitButton } from "@/app/submit-button";
-import { Logo } from "@/app/logo";
+import { SubmitButton } from "@/app/component/submit-button";
+import { Logo } from "@/app/component/logo";
 
 export default async function VendorLayout({
   children,

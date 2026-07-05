@@ -1,4 +1,4 @@
-import { Skeleton, ListSkeleton } from "@/app/skeleton";
+import { Skeleton, ListSkeleton } from "@/app/component/skeleton";
 
 export default function Loading() {
   return (

@@ -1,6 +1,6 @@
-import { PublicHeader } from "@/app/public-header";
-import { PublicFooter } from "@/app/public-footer";
-import { Skeleton, ProductGridSkeleton } from "@/app/skeleton";
+import { PublicHeader } from "@/app/component/public-header";
+import { PublicFooter } from "@/app/component/public-footer";
+import { Skeleton, ProductGridSkeleton } from "@/app/component/skeleton";
 
 export default function Loading() {
   return (

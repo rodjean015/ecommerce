@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/app/logo";
+import { Logo } from "@/app/component/logo";
 
 export function PublicFooter() {
   return (

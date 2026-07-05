@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { signInWithGoogle, signInWithX } from "@/app/auth/actions";
-import { SubmitButton } from "@/app/submit-button";
-import { Logo } from "@/app/logo";
+import { SubmitButton } from "@/app/component/submit-button";
+import { Logo } from "@/app/component/logo";
 
 export default function LoginPage() {
   return (

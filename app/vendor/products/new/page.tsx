@@ -14,7 +14,7 @@ export default async function NewProductPage() {
       >
         ← Back to products
       </Link>
-      <div className="rounded-2xl border border-black/[.08] bg-white p-6 shadow-sm dark:border-white/[.145] dark:bg-zinc-950 sm:p-8">
+      <div className="border border-black/[.08] bg-white p-6 shadow-sm dark:border-white/[.145] dark:bg-zinc-950 sm:p-8">
         <h1 className="mb-6 text-2xl font-semibold text-black dark:text-zinc-50">
           Add product
         </h1>

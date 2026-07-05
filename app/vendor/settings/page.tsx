@@ -1,6 +1,6 @@
 import { requireVendor } from "@/lib/supabase/dal";
 import { updateVendorProfile } from "@/app/vendor/settings/actions";
-import { SubmitButton } from "@/app/submit-button";
+import { SubmitButton } from "@/app/component/submit-button";
 
 const inputClasses =
   "w-full border border-black/[.08] bg-white px-3 py-2 text-black transition-colors focus:border-black/20 focus:outline-none focus:ring-2 focus:ring-black/10 dark:border-white/[.145] dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-white/30 dark:focus:ring-white/20";
@@ -27,7 +27,7 @@ export default async function VendorSettingsPage({
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-black/[.08] bg-white p-6 shadow-sm dark:border-white/[.145] dark:bg-zinc-950 sm:p-8">
+      <div className="border border-black/[.08] bg-white p-6 shadow-sm dark:border-white/[.145] dark:bg-zinc-950 sm:p-8">
         <form action={updateVendorProfile} className="flex flex-col gap-4">
           <div>
             <label className={labelClasses} htmlFor="full_name">

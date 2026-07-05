@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getProfile, getAuthUser } from "@/lib/supabase/dal";
 import { OnboardingForm } from "@/app/onboarding/onboarding-form";
-import { Logo } from "@/app/logo";
+import { Logo } from "@/app/component/logo";
 
 export default async function OnboardingPage() {
   const profile = await getProfile();

@@ -1,16 +1,29 @@
 import { requireVendor } from "@/lib/supabase/dal";
 import { createClient } from "@/lib/supabase/server";
+import { OrderStatusBadge } from "@/app/(buyer)/order-status-badge";
+import { updateOrderStatus } from "@/app/vendor/orders/actions";
+import { SubmitButton } from "@/app/component/submit-button";
 import { formatPrice } from "@/lib/format";
+
+function unwrapEmbed<T>(value: T | T[] | null | undefined): T | undefined {
+  return Array.isArray(value) ? value[0] : (value ?? undefined);
+}
 
 export default async function VendorOrdersPage() {
   const vendor = await requireVendor();
   const supabase = await createClient();
 
-  const { data: sales } = await supabase
+  const { data: sales, error } = await supabase
     .from("order_items")
-    .select("id, quantity, unit_price, created_at, products(name)")
+    .select(
+      "id, quantity, unit_price, created_at, products(name), orders(id, status, recipient_name, phone, address_line, city, postal_code)",
+    )
     .eq("vendor_id", vendor.id)
     .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("VendorOrdersPage: order_items select failed", error);
+  }
 
   const totalRevenue = (sales ?? []).reduce(
     (sum, sale) => sum + sale.quantity * sale.unit_price,
@@ -60,25 +73,95 @@ export default async function VendorOrdersPage() {
         </div>
       ) : (
         <ul className="flex flex-col gap-3">
-          {sales.map((sale) => (
-            <li
-              key={sale.id}
-              className="flex flex-col gap-1 border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-            >
-              <div className="min-w-0">
-                <p className="font-medium text-black dark:text-zinc-50">
-                  {sale.products?.[0]?.name ?? "Deleted product"}
+          {sales.map((sale) => {
+            const product = unwrapEmbed(sale.products);
+            const shipping = unwrapEmbed(sale.orders);
+
+            return (
+              <li
+                key={sale.id}
+                className="flex flex-col gap-1 border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+              >
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 font-medium text-black dark:text-zinc-50">
+                    {product?.name ?? "Deleted product"}
+                    {shipping ? (
+                      <OrderStatusBadge status={shipping.status} />
+                    ) : null}
+                  </p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    {sale.quantity} × {formatPrice(sale.unit_price)} ·{" "}
+                    {new Date(sale.created_at).toLocaleDateString()}
+                  </p>
+                  {shipping ? (
+                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                      Ship to: {shipping.recipient_name} · {shipping.phone} ·{" "}
+                      {shipping.address_line}, {shipping.city}
+                      {shipping.postal_code ? ` ${shipping.postal_code}` : ""}
+                    </p>
+                  ) : null}
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                    Cash on Delivery
+                  </p>
+                  {shipping &&
+                  (shipping.status === "packaging" ||
+                    shipping.status === "in_transit") ? (
+                    <div className="mt-2 flex items-center gap-4">
+                      {shipping.status === "packaging" ? (
+                        <form
+                          action={updateOrderStatus.bind(
+                            null,
+                            shipping.id,
+                            "in_transit",
+                          )}
+                        >
+                          <SubmitButton
+                            pendingText="Updating…"
+                            className="text-sm font-medium text-black underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-zinc-50"
+                          >
+                            Mark as shipped
+                          </SubmitButton>
+                        </form>
+                      ) : null}
+                      {shipping.status === "in_transit" ? (
+                        <form
+                          action={updateOrderStatus.bind(
+                            null,
+                            shipping.id,
+                            "received",
+                          )}
+                        >
+                          <SubmitButton
+                            pendingText="Updating…"
+                            className="text-sm font-medium text-black underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-zinc-50"
+                          >
+                            Mark as received
+                          </SubmitButton>
+                        </form>
+                      ) : null}
+                      <form
+                        action={updateOrderStatus.bind(
+                          null,
+                          shipping.id,
+                          "cancelled",
+                        )}
+                      >
+                        <SubmitButton
+                          pendingText="Cancelling…"
+                          className="text-sm font-medium text-red-600 underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400"
+                        >
+                          Cancel
+                        </SubmitButton>
+                      </form>
+                    </div>
+                  ) : null}
+                </div>
+                <p className="shrink-0 font-medium text-black dark:text-zinc-50">
+                  {formatPrice(sale.quantity * sale.unit_price)}
                 </p>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {sale.quantity} × {formatPrice(sale.unit_price)} ·{" "}
-                  {new Date(sale.created_at).toLocaleDateString()}
-                </p>
-              </div>
-              <p className="shrink-0 font-medium text-black dark:text-zinc-50">
-                {formatPrice(sale.quantity * sale.unit_price)}
-              </p>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

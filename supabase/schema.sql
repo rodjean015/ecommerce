@@ -115,10 +115,37 @@ create trigger products_set_updated_at
 create table if not exists orders (
   id uuid primary key default gen_random_uuid(),
   buyer_id uuid not null references auth.users (id) on delete cascade,
-  status text not null default 'paid',
+  status text not null default 'packaging',
   total numeric(10, 2) not null default 0 check (total >= 0),
+  recipient_name text not null default '',
+  phone text not null default '',
+  address_line text not null default '',
+  city text not null default '',
+  postal_code text,
+  notes text,
+  payment_method text not null default 'cod',
   created_at timestamptz not null default now()
 );
+
+alter table orders add column if not exists recipient_name text not null default '';
+alter table orders add column if not exists phone text not null default '';
+alter table orders add column if not exists address_line text not null default '';
+alter table orders add column if not exists city text not null default '';
+alter table orders add column if not exists postal_code text;
+alter table orders add column if not exists notes text;
+alter table orders add column if not exists payment_method text not null default 'cod';
+
+alter table orders drop constraint if exists orders_payment_method_check;
+alter table orders add constraint orders_payment_method_check check (payment_method = 'cod');
+
+-- status is a delivery lifecycle, not a payment state (COD is paid on
+-- delivery, not at checkout): packaging -> in_transit -> received, with
+-- cancellation possible before it's received.
+update orders set status = 'packaging' where status = 'paid';
+alter table orders alter column status set default 'packaging';
+alter table orders drop constraint if exists orders_status_check;
+alter table orders add constraint orders_status_check
+  check (status in ('packaging', 'in_transit', 'received', 'cancelled'));
 
 alter table orders enable row level security;
 
@@ -126,8 +153,21 @@ drop policy if exists "orders_select_own" on orders;
 create policy "orders_select_own" on orders
   for select using (auth.uid() = buyer_id);
 
+-- A vendor needs the delivery details of any order that contains one of
+-- their items, so they know where to ship it (COD has no other paper trail).
+drop policy if exists "orders_select_vendor" on orders;
+create policy "orders_select_vendor" on orders
+  for select using (
+    exists (
+      select 1 from order_items
+      where order_items.order_id = orders.id
+        and order_items.vendor_id = auth.uid()
+    )
+  );
+
 -- Intentionally no insert/update/delete policy: rows are only ever written by
--- place_order(), a SECURITY DEFINER function that bypasses RLS internally.
+-- place_order() and update_order_status(), both SECURITY DEFINER functions
+-- that bypass RLS internally.
 -- This means even a compromised anon key cannot fabricate a "paid" order.
 
 create table if not exists order_items (
@@ -135,25 +175,33 @@ create table if not exists order_items (
   order_id uuid not null references orders (id) on delete cascade,
   product_id uuid not null references products (id),
   vendor_id uuid not null references auth.users (id),
+  buyer_id uuid references auth.users (id),
   quantity integer not null check (quantity > 0),
   unit_price numeric(10, 2) not null check (unit_price >= 0),
   created_at timestamptz not null default now()
 );
+
+alter table order_items add column if not exists buyer_id uuid references auth.users (id);
+
+-- Backfill from orders for rows written before buyer_id existed on this table.
+update order_items oi
+set buyer_id = o.buyer_id
+from orders o
+where oi.order_id = o.id
+  and oi.buyer_id is null;
 
 create index if not exists order_items_order_id_idx on order_items (order_id);
 create index if not exists order_items_vendor_id_idx on order_items (vendor_id);
 
 alter table order_items enable row level security;
 
+-- buyer_id is denormalized here (rather than joining back to orders) because
+-- orders_select_vendor below queries order_items: if this policy queried
+-- orders in turn, the two would recurse into each other and Postgres would
+-- raise "infinite recursion detected in policy for relation orders".
 drop policy if exists "order_items_select_buyer" on order_items;
 create policy "order_items_select_buyer" on order_items
-  for select using (
-    exists (
-      select 1 from orders
-      where orders.id = order_items.order_id
-        and orders.buyer_id = auth.uid()
-    )
-  );
+  for select using (auth.uid() = buyer_id);
 
 drop policy if exists "order_items_select_vendor" on order_items;
 create policy "order_items_select_vendor" on order_items
@@ -163,10 +211,23 @@ create policy "order_items_select_vendor" on order_items
 -- place_order: the only way to create an order. Re-reads price/stock from
 -- the products table (never trusts client-submitted prices), locks rows to
 -- avoid overselling under concurrent checkouts, and does all writes
--- atomically in one transaction.
+-- atomically in one transaction. Delivery details are required because the
+-- only payment method is Cash on Delivery: there is no other record of
+-- where to ship the order.
 -- ============================================================================
 
-create or replace function place_order(items jsonb)
+drop function if exists place_order(jsonb);
+
+create or replace function place_order(
+  items jsonb,
+  recipient_name text,
+  phone text,
+  address_line text,
+  city text,
+  postal_code text default null,
+  notes text default null,
+  payment_method text default 'cod'
+)
 returns uuid
 language plpgsql
 security definer
@@ -187,8 +248,35 @@ begin
     raise exception 'Cart is empty';
   end if;
 
-  insert into orders (buyer_id, status, total)
-  values (auth.uid(), 'paid', 0)
+  if payment_method <> 'cod' then
+    raise exception 'Only Cash on Delivery is supported';
+  end if;
+
+  if coalesce(trim(recipient_name), '') = '' then
+    raise exception 'Recipient name is required';
+  end if;
+
+  if coalesce(trim(phone), '') = '' then
+    raise exception 'Phone number is required';
+  end if;
+
+  if coalesce(trim(address_line), '') = '' then
+    raise exception 'Delivery address is required';
+  end if;
+
+  if coalesce(trim(city), '') = '' then
+    raise exception 'City is required';
+  end if;
+
+  insert into orders (
+    buyer_id, status, total, recipient_name, phone, address_line, city,
+    postal_code, notes, payment_method
+  )
+  values (
+    auth.uid(), 'packaging', 0, trim(recipient_name), trim(phone),
+    trim(address_line), trim(city), nullif(trim(postal_code), ''),
+    nullif(trim(notes), ''), payment_method
+  )
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(items)
@@ -216,8 +304,8 @@ begin
     set stock = stock - v_qty
     where id = v_product.id;
 
-    insert into order_items (order_id, product_id, vendor_id, quantity, unit_price)
-    values (v_order_id, v_product.id, v_product.vendor_id, v_qty, v_product.price);
+    insert into order_items (order_id, product_id, vendor_id, buyer_id, quantity, unit_price)
+    values (v_order_id, v_product.id, v_product.vendor_id, auth.uid(), v_qty, v_product.price);
 
     v_total := v_total + (v_product.price * v_qty);
   end loop;
@@ -228,4 +316,73 @@ begin
 end;
 $$;
 
-grant execute on function place_order(jsonb) to authenticated;
+grant execute on function place_order(jsonb, text, text, text, text, text, text, text) to authenticated;
+
+-- ============================================================================
+-- update_order_status: the only way to change an order's delivery status.
+-- Buyers may only cancel, and only while it's still packaging (before it
+-- ships). Vendors may advance packaging -> in_transit -> received, or cancel
+-- any time before it's received. Cancelling restores the stock that
+-- place_order() reserved. Runs as security definer so neither role needs
+-- direct update access to orders.
+-- ============================================================================
+
+create or replace function update_order_status(p_order_id uuid, p_new_status text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_order orders%rowtype;
+  v_is_vendor boolean;
+begin
+  if auth.uid() is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if p_new_status not in ('packaging', 'in_transit', 'received', 'cancelled') then
+    raise exception 'Invalid status';
+  end if;
+
+  select * into v_order from orders where id = p_order_id;
+
+  if not found then
+    raise exception 'Order not found';
+  end if;
+
+  v_is_vendor := exists (
+    select 1 from order_items
+    where order_items.order_id = v_order.id
+      and order_items.vendor_id = auth.uid()
+  );
+
+  if auth.uid() = v_order.buyer_id then
+    if p_new_status <> 'cancelled' or v_order.status <> 'packaging' then
+      raise exception 'Buyers can only cancel an order while it is still packaging';
+    end if;
+  elsif v_is_vendor then
+    if v_order.status = 'packaging' and p_new_status in ('in_transit', 'cancelled') then
+      -- allowed
+    elsif v_order.status = 'in_transit' and p_new_status in ('received', 'cancelled') then
+      -- allowed
+    else
+      raise exception 'Invalid status transition';
+    end if;
+  else
+    raise exception 'Not authorized';
+  end if;
+
+  if p_new_status = 'cancelled' then
+    update products p
+    set stock = p.stock + oi.quantity
+    from order_items oi
+    where oi.order_id = v_order.id
+      and oi.product_id = p.id;
+  end if;
+
+  update orders set status = p_new_status where id = p_order_id;
+end;
+$$;
+
+grant execute on function update_order_status(uuid, text) to authenticated;

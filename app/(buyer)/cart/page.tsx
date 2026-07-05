@@ -7,6 +7,11 @@ import { useCart } from "@/lib/cart-context";
 import { checkout } from "@/app/(buyer)/cart/actions";
 import { formatPrice } from "@/lib/format";
 
+const inputClasses =
+  "w-full border border-black/[.08] bg-white px-3 py-2 text-sm text-black transition-colors focus:border-black/20 focus:outline-none focus:ring-2 focus:ring-black/10 dark:border-white/[.145] dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-white/30 dark:focus:ring-white/20";
+const labelClasses =
+  "mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300";
+
 export default function CartPage() {
   const { items, setQuantity, removeItem, clear } = useCart();
   const [error, setError] = useState<string | null>(null);
@@ -15,14 +20,27 @@ export default function CartPage() {
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  function handleCheckout() {
+  function handleCheckout(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const delivery = {
+      recipientName: String(formData.get("recipient_name") ?? ""),
+      phone: String(formData.get("phone") ?? ""),
+      addressLine: String(formData.get("address_line") ?? ""),
+      city: String(formData.get("city") ?? ""),
+      postalCode: String(formData.get("postal_code") ?? ""),
+      notes: String(formData.get("notes") ?? ""),
+    };
+
     startTransition(async () => {
       const result = await checkout(
         items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
-        }))
+        })),
+        delivery
       );
 
       if ("error" in result) {
@@ -143,19 +161,118 @@ export default function CartPage() {
         ))}
       </ul>
 
-      <div className="mt-6 flex items-center justify-between border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950">
-        <span className="text-lg font-medium text-black dark:text-zinc-50">
-          Total: {formatPrice(total)}
-        </span>
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={handleCheckout}
-          className="rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
-        >
-          {isPending ? "Placing order..." : "Checkout"}
-        </button>
-      </div>
+      <form onSubmit={handleCheckout} className="mt-6 flex flex-col gap-4">
+        <div className="border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950">
+          <h2 className="mb-4 text-base font-semibold text-black dark:text-zinc-50">
+            Delivery details
+          </h2>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className={labelClasses} htmlFor="recipient_name">
+                Full name
+              </label>
+              <input
+                id="recipient_name"
+                name="recipient_name"
+                required
+                className={inputClasses}
+              />
+            </div>
+            <div>
+              <label className={labelClasses} htmlFor="phone">
+                Phone number
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                className={inputClasses}
+              />
+            </div>
+            <div>
+              <label className={labelClasses} htmlFor="address_line">
+                Address
+              </label>
+              <input
+                id="address_line"
+                name="address_line"
+                required
+                placeholder="House no., street, barangay"
+                className={inputClasses}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClasses} htmlFor="city">
+                  City
+                </label>
+                <input
+                  id="city"
+                  name="city"
+                  required
+                  className={inputClasses}
+                />
+              </div>
+              <div>
+                <label className={labelClasses} htmlFor="postal_code">
+                  Postal code
+                </label>
+                <input
+                  id="postal_code"
+                  name="postal_code"
+                  className={inputClasses}
+                />
+              </div>
+            </div>
+            <div>
+              <label className={labelClasses} htmlFor="notes">
+                Delivery notes (optional)
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows={2}
+                className={inputClasses}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950">
+          <h2 className="mb-3 text-base font-semibold text-black dark:text-zinc-50">
+            Payment method
+          </h2>
+          <label className="flex items-center gap-3 border border-black/[.08] bg-black/[.02] px-3 py-2.5 text-sm font-medium text-black dark:border-white/[.145] dark:bg-white/[.04] dark:text-zinc-50">
+            <input
+              type="radio"
+              name="payment_method"
+              value="cod"
+              checked
+              readOnly
+              className="h-4 w-4"
+            />
+            Cash on Delivery (COD)
+          </label>
+          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-500">
+            Pay in cash when your order arrives. This is currently the only
+            payment method available.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between border border-black/[.08] bg-white p-4 dark:border-white/[.145] dark:bg-zinc-950">
+          <span className="text-lg font-medium text-black dark:text-zinc-50">
+            Total: {formatPrice(total)}
+          </span>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+          >
+            {isPending ? "Placing order..." : "Place order"}
+          </button>
+        </div>
+      </form>
 
       {error ? (
         <div className="mt-3 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">

@@ -1,4 +1,4 @@
-import { Skeleton } from "@/app/skeleton";
+import { Skeleton } from "@/app/component/skeleton";
 
 export default function Loading() {
   return (
@@ -7,10 +7,10 @@ export default function Loading() {
       <Skeleton className="mb-1 h-7 w-48" />
       <Skeleton className="mb-6 h-4 w-40" />
       <div className="flex flex-col gap-3">
-        <Skeleton className="h-16 w-full rounded-xl" />
-        <Skeleton className="h-16 w-full rounded-xl" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
       </div>
-      <Skeleton className="mt-6 h-14 w-full rounded-xl" />
+      <Skeleton className="mt-6 h-14 w-full" />
     </div>
   );
 }

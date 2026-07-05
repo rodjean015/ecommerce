@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { listProducts, listCategories } from "@/lib/products";
-import { ProductCard } from "@/app/product-card";
-import { PublicHeader } from "@/app/public-header";
-import { PublicFooter } from "@/app/public-footer";
+import { ProductCard } from "@/app/component/product-card";
+import { PublicHeader } from "@/app/component/public-header";
+import { PublicFooter } from "@/app/component/public-footer";
 
 const VALUE_PROPS = [
   {
