@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
-import { AddToCartButton } from "@/app/(buyer)/shop/add-to-cart-button";
 import { PublicHeader } from "@/app/component/public-header";
 import { PublicFooter } from "@/app/component/public-footer";
-import { formatPrice } from "@/lib/format";
+import { ProductView } from "@/app/products/[id]/product-view";
 
 export default async function ProductDetailPage({
   params,
@@ -26,57 +25,7 @@ export default async function ProductDetailPage({
         >
           Back to shop
         </Link>
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-          <div className="aspect-square w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-            {product.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-sm text-zinc-400 dark:text-zinc-600">
-                No image
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col gap-4">
-            {product.category ? (
-              <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                {product.category}
-              </span>
-            ) : null}
-            <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
-              {product.name}
-            </h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Sold by {product.vendor_name}
-            </p>
-            <p className="text-xl font-medium text-black dark:text-zinc-50">
-              {formatPrice(product.price)}
-            </p>
-            {product.description ? (
-              <p className="text-zinc-600 dark:text-zinc-400">
-                {product.description}
-              </p>
-            ) : null}
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {product.stock > 0
-                ? `${product.stock} in stock`
-                : "Out of stock"}
-            </p>
-            <div>
-              <AddToCartButton
-                productId={product.id}
-                name={product.name}
-                price={product.price}
-                imageUrl={product.image_url}
-                inStock={product.stock > 0}
-              />
-            </div>
-          </div>
-        </div>
+        <ProductView product={product} />
       </main>
       <PublicFooter />
     </div>

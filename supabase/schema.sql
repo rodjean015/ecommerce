@@ -17,10 +17,14 @@ create table if not exists profiles (
   role user_role not null,
   full_name text,
   shop_name text,
+  logo_url text,
+  cover_url text,
   created_at timestamptz not null default now()
 );
 
 alter table profiles add column if not exists shop_name text;
+alter table profiles add column if not exists logo_url text;
+alter table profiles add column if not exists cover_url text;
 
 alter table profiles enable row level security;
 
@@ -28,8 +32,9 @@ drop policy if exists "profiles_select_own" on profiles;
 create policy "profiles_select_own" on profiles
   for select using (auth.uid() = id);
 
--- Vendor name/shop_name are shown publicly on the catalog ("Sold by X"), so
--- anyone must be able to read vendor profiles, not just the vendor themself.
+-- Vendor name/shop_name/logo/cover are shown publicly (catalog "Sold by X"
+-- and the public /store/[id] shop page), so anyone must be able to read
+-- vendor profiles, not just the vendor themself.
 drop policy if exists "profiles_select_vendor_public" on profiles;
 create policy "profiles_select_vendor_public" on profiles
   for select using (role = 'vendor');
@@ -54,6 +59,7 @@ create table if not exists products (
   price numeric(10, 2) not null check (price >= 0),
   stock integer not null default 0 check (stock >= 0),
   image_url text,
+  image_urls text[],
   category text,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
@@ -62,6 +68,14 @@ create table if not exists products (
 
 alter table products add column if not exists category text;
 alter table products add column if not exists is_active boolean not null default true;
+
+-- image_urls holds up to 5 photos (data URLs); image_url is kept in sync as
+-- image_urls[1] for the many places (cards, cart, order rows) that only
+-- ever show a single thumbnail.
+alter table products add column if not exists image_urls text[];
+alter table products drop constraint if exists products_image_urls_check;
+alter table products add constraint products_image_urls_check
+  check (image_urls is null or array_length(image_urls, 1) <= 5);
 
 create index if not exists products_vendor_id_idx on products (vendor_id);
 create index if not exists products_category_idx on products (category);

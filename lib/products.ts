@@ -8,7 +8,9 @@ export type Product = {
   price: number;
   stock: number;
   image_url: string | null;
+  image_urls: string[] | null;
   category: string | null;
+  vendor_id: string;
   vendor_name: string;
 };
 
@@ -19,12 +21,13 @@ type ProductRow = {
   price: number;
   stock: number;
   image_url: string | null;
+  image_urls: string[] | null;
   category: string | null;
   vendor_id: string;
 };
 
 const PRODUCT_COLUMNS =
-  "id, name, description, price, stock, image_url, category, vendor_id";
+  "id, name, description, price, stock, image_url, image_urls, category, vendor_id";
 
 async function attachVendorNames(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -42,17 +45,23 @@ async function attachVendorNames(
     (vendors ?? []).map((v) => [v.id, v.shop_name ?? v.full_name ?? "Vendor"]),
   );
 
-  return rows.map(({ vendor_id, ...product }) => ({
-    ...product,
-    vendor_name: nameById.get(vendor_id) ?? "Vendor",
+  return rows.map((row) => ({
+    ...row,
+    vendor_name: nameById.get(row.vendor_id) ?? "Vendor",
   }));
 }
 
 export async function listProducts({
   q,
   category,
+  vendorId,
   limit,
-}: { q?: string; category?: string; limit?: number } = {}): Promise<Product[]> {
+}: {
+  q?: string;
+  category?: string;
+  vendorId?: string;
+  limit?: number;
+} = {}): Promise<Product[]> {
   const supabase = await createClient();
   let query = supabase
     .from("products")
@@ -62,6 +71,7 @@ export async function listProducts({
 
   if (q) query = query.ilike("name", `%${q}%`);
   if (category) query = query.eq("category", category);
+  if (vendorId) query = query.eq("vendor_id", vendorId);
   if (limit) query = query.limit(limit);
 
   const { data } = await query;

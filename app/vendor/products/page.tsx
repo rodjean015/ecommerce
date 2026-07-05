@@ -27,7 +27,14 @@ export default async function VendorProductsPage() {
         <div>
           {vendor.shop_name ? (
             <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              {vendor.shop_name}
+              {vendor.shop_name}{" "}
+              <Link
+                href={`/store/${vendor.id}`}
+                target="_blank"
+                className="underline"
+              >
+                Visit shop
+              </Link>
             </p>
           ) : null}
           <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">

@@ -14,8 +14,22 @@ export async function PublicHeader() {
         </Link>
         <nav className="flex items-center gap-6 text-sm font-medium text-black dark:text-zinc-50">
           <Link href="/products">Shop</Link>
-          <Link href="/cart">
-            Cart
+          <Link href="/cart" aria-label="Cart" className="relative flex items-center">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 4.5h2.25l1.5 12.75h10.5l1.5-9H6.375M9 21a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm7.5 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+              />
+            </svg>
             <CartBadge />
           </Link>
           <Link
