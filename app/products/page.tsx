@@ -41,7 +41,7 @@ export default async function ProductsPage({
         />
 
         {!products.length ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
+          <div className="flex flex-col items-center gap-3 border border-dashed border-black/[.15] py-16 text-center dark:border-white/[.2]">
             <svg
               viewBox="0 0 24 24"
               width="28"
