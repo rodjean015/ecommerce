@@ -16,7 +16,7 @@ export default async function VendorOrdersPage() {
   const { data: sales, error } = await supabase
     .from("order_items")
     .select(
-      "id, quantity, unit_price, created_at, products(name), orders(id, status, recipient_name, phone, address_line, city, postal_code)",
+      "id, quantity, unit_price, created_at, products(name), orders(id, status, recipient_name, phone, region, province, address_line, city, postal_code)",
     )
     .eq("vendor_id", vendor.id)
     .order("created_at", { ascending: false });
@@ -96,8 +96,10 @@ export default async function VendorOrdersPage() {
                   {shipping ? (
                     <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                       Ship to: {shipping.recipient_name} · {shipping.phone} ·{" "}
-                      {shipping.address_line}, {shipping.city}
+                      {shipping.address_line}, {shipping.city},{" "}
+                      {shipping.province}
                       {shipping.postal_code ? ` ${shipping.postal_code}` : ""}
+                      , {shipping.region}
                     </p>
                   ) : null}
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">

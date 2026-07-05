@@ -5,6 +5,33 @@ import { ProductCard } from "@/app/component/product-card";
 import { PublicHeader } from "@/app/component/public-header";
 import { PublicFooter } from "@/app/component/public-footer";
 
+const COVER_GRADIENTS = [
+  "from-rose-400 to-orange-300",
+  "from-amber-400 to-yellow-300",
+  "from-emerald-400 to-teal-300",
+  "from-sky-400 to-blue-300",
+  "from-indigo-400 to-violet-300",
+  "from-fuchsia-400 to-pink-300",
+];
+
+function hashString(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) % 1_000_000_007;
+  }
+  return hash;
+}
+
+function getInitials(name: string) {
+  const letters = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "");
+  return letters.join("") || "?";
+}
+
 export default async function VendorStorePage({
   params,
 }: {
@@ -17,6 +44,8 @@ export default async function VendorStorePage({
 
   const products = await listProducts({ vendorId: id });
   const shopName = vendor.shop_name ?? vendor.full_name ?? "Shop";
+  const initials = getInitials(shopName);
+  const gradient = COVER_GRADIENTS[hashString(vendor.id) % COVER_GRADIENTS.length];
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -29,7 +58,15 @@ export default async function VendorStorePage({
             alt=""
             className="h-full w-full object-cover"
           />
-        ) : null}
+        ) : (
+          <div
+            className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${gradient}`}
+          >
+            <span className="text-4xl font-semibold text-white/40 sm:text-6xl">
+              {initials}
+            </span>
+          </div>
+        )}
       </div>
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8 sm:px-8">
         <div className="-mt-10 mb-8 flex items-end gap-4 sm:-mt-12">
@@ -41,7 +78,11 @@ export default async function VendorStorePage({
                 alt={shopName}
                 className="h-full w-full object-cover"
               />
-            ) : null}
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-foreground text-xl font-semibold text-background">
+                {initials}
+              </div>
+            )}
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">

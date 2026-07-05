@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/shop", label: "Shop" },
   { href: "/cart", label: "Cart" },
   { href: "/orders", label: "Orders" },
+  { href: "/addresses", label: "Addresses" },
 ];
 
 export function BuyerNav() {

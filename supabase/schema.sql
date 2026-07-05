@@ -133,6 +133,8 @@ create table if not exists orders (
   total numeric(10, 2) not null default 0 check (total >= 0),
   recipient_name text not null default '',
   phone text not null default '',
+  region text not null default '',
+  province text not null default '',
   address_line text not null default '',
   city text not null default '',
   postal_code text,
@@ -143,6 +145,8 @@ create table if not exists orders (
 
 alter table orders add column if not exists recipient_name text not null default '';
 alter table orders add column if not exists phone text not null default '';
+alter table orders add column if not exists region text not null default '';
+alter table orders add column if not exists province text not null default '';
 alter table orders add column if not exists address_line text not null default '';
 alter table orders add column if not exists city text not null default '';
 alter table orders add column if not exists postal_code text;
@@ -231,11 +235,14 @@ create policy "order_items_select_vendor" on order_items
 -- ============================================================================
 
 drop function if exists place_order(jsonb);
+drop function if exists place_order(jsonb, text, text, text, text, text, text, text);
 
 create or replace function place_order(
   items jsonb,
   recipient_name text,
   phone text,
+  region text,
+  province text,
   address_line text,
   city text,
   postal_code text default null,
@@ -274,6 +281,14 @@ begin
     raise exception 'Phone number is required';
   end if;
 
+  if coalesce(trim(region), '') = '' then
+    raise exception 'Region is required';
+  end if;
+
+  if coalesce(trim(province), '') = '' then
+    raise exception 'Province is required';
+  end if;
+
   if coalesce(trim(address_line), '') = '' then
     raise exception 'Delivery address is required';
   end if;
@@ -283,13 +298,13 @@ begin
   end if;
 
   insert into orders (
-    buyer_id, status, total, recipient_name, phone, address_line, city,
-    postal_code, notes, payment_method
+    buyer_id, status, total, recipient_name, phone, region, province,
+    address_line, city, postal_code, notes, payment_method
   )
   values (
     auth.uid(), 'packaging', 0, trim(recipient_name), trim(phone),
-    trim(address_line), trim(city), nullif(trim(postal_code), ''),
-    nullif(trim(notes), ''), payment_method
+    trim(region), trim(province), trim(address_line), trim(city),
+    nullif(trim(postal_code), ''), nullif(trim(notes), ''), payment_method
   )
   returning id into v_order_id;
 
@@ -330,7 +345,7 @@ begin
 end;
 $$;
 
-grant execute on function place_order(jsonb, text, text, text, text, text, text, text) to authenticated;
+grant execute on function place_order(jsonb, text, text, text, text, text, text, text, text, text) to authenticated;
 
 -- ============================================================================
 -- update_order_status: the only way to change an order's delivery status.
@@ -400,3 +415,44 @@ end;
 $$;
 
 grant execute on function update_order_status(uuid, text) to authenticated;
+
+-- ============================================================================
+-- addresses: a buyer's saved delivery addresses, reusable at checkout.
+-- Plain owner-only CRUD (no security definer function needed here, unlike
+-- orders, since nobody but the buyer themself ever needs to touch these).
+-- ============================================================================
+
+create table if not exists addresses (
+  id uuid primary key default gen_random_uuid(),
+  buyer_id uuid not null references auth.users (id) on delete cascade,
+  label text,
+  recipient_name text not null,
+  phone text not null,
+  region text not null,
+  province text not null,
+  address_line text not null,
+  city text not null,
+  postal_code text,
+  is_default boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists addresses_buyer_id_idx on addresses (buyer_id);
+
+alter table addresses enable row level security;
+
+drop policy if exists "addresses_select_own" on addresses;
+create policy "addresses_select_own" on addresses
+  for select using (auth.uid() = buyer_id);
+
+drop policy if exists "addresses_insert_own" on addresses;
+create policy "addresses_insert_own" on addresses
+  for insert with check (auth.uid() = buyer_id);
+
+drop policy if exists "addresses_update_own" on addresses;
+create policy "addresses_update_own" on addresses
+  for update using (auth.uid() = buyer_id);
+
+drop policy if exists "addresses_delete_own" on addresses;
+create policy "addresses_delete_own" on addresses
+  for delete using (auth.uid() = buyer_id);

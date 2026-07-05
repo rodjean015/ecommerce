@@ -8,6 +8,7 @@ const PROTECTED_ROUTES = [
   "/shop",
   "/cart",
   "/orders",
+  "/addresses",
 ];
 
 export async function updateSession(request: NextRequest) {

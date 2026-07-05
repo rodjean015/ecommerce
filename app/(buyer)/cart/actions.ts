@@ -6,6 +6,8 @@ import { requireBuyer } from "@/lib/supabase/dal";
 export type DeliveryDetails = {
   recipientName: string;
   phone: string;
+  region: string;
+  province: string;
   addressLine: string;
   city: string;
   postalCode?: string;
@@ -28,6 +30,12 @@ export async function checkout(
   if (!delivery.phone.trim()) {
     return { error: "Phone number is required" };
   }
+  if (!delivery.region.trim()) {
+    return { error: "Region is required" };
+  }
+  if (!delivery.province.trim()) {
+    return { error: "Province is required" };
+  }
   if (!delivery.addressLine.trim()) {
     return { error: "Delivery address is required" };
   }
@@ -43,6 +51,8 @@ export async function checkout(
     })),
     recipient_name: delivery.recipientName.trim(),
     phone: delivery.phone.trim(),
+    region: delivery.region.trim(),
+    province: delivery.province.trim(),
     address_line: delivery.addressLine.trim(),
     city: delivery.city.trim(),
     postal_code: delivery.postalCode?.trim() || null,

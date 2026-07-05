@@ -23,7 +23,7 @@ export default async function OrderDetailPage({
   const { data: order, error } = await supabase
     .from("orders")
     .select(
-      "id, total, status, created_at, recipient_name, phone, address_line, city, postal_code, notes, payment_method",
+      "id, total, status, created_at, recipient_name, phone, region, province, address_line, city, postal_code, notes, payment_method",
     )
     .eq("id", id)
     .eq("buyer_id", buyer.id)
@@ -89,8 +89,11 @@ export default async function OrderDetailPage({
           {order.recipient_name} · {order.phone}
         </p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {order.address_line}, {order.city}
+          {order.address_line}, {order.city}, {order.province}
           {order.postal_code ? ` ${order.postal_code}` : ""}
+        </p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          {order.region}
         </p>
         {order.notes ? (
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
