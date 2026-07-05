@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 export type Product = {
   id: string;
@@ -89,8 +90,11 @@ export async function listCategories(): Promise<string[]> {
     .eq("is_active", true)
     .not("category", "is", null);
 
-  const categories = new Set(
-    (data ?? []).map((row) => row.category).filter((c): c is string => !!c),
+  const extra = new Set(
+    (data ?? [])
+      .map((row) => row.category)
+      .filter((c): c is string => !!c && !PRODUCT_CATEGORIES.includes(c)),
   );
-  return Array.from(categories).sort();
+
+  return [...PRODUCT_CATEGORIES, ...Array.from(extra).sort()];
 }
