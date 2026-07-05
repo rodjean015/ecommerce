@@ -50,6 +50,9 @@ export default async function ProductDetailPage({
             <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
               {product.name}
             </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Sold by {product.vendor_name}
+            </p>
             <p className="text-xl font-medium text-black dark:text-zinc-50">
               {formatPrice(product.price)}
             </p>

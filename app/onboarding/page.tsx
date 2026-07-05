@@ -1,17 +1,17 @@
 import { redirect } from "next/navigation";
-import { getProfile } from "@/lib/supabase/dal";
-import { chooseRole } from "@/app/onboarding/actions";
-import { SubmitButton } from "@/app/submit-button";
+import { getProfile, getAuthUser } from "@/lib/supabase/dal";
+import { OnboardingForm } from "@/app/onboarding/onboarding-form";
 import { Logo } from "@/app/logo";
-
-const cardClasses =
-  "flex h-full flex-col items-center gap-3 rounded-xl border border-black/[.08] bg-white p-6 text-center transition-colors hover:border-black/[.2] hover:bg-black/[.02] dark:border-white/[.145] dark:bg-zinc-950 dark:hover:border-white/[.3] dark:hover:bg-white/[.03]";
 
 export default async function OnboardingPage() {
   const profile = await getProfile();
   if (profile) {
     redirect(profile.role === "vendor" ? "/vendor/products" : "/shop");
   }
+
+  const user = await getAuthUser();
+  const defaultFullName =
+    (user?.user_metadata?.full_name as string | undefined) ?? "";
 
   return (
     <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-zinc-50 px-6 py-16 dark:bg-black">
@@ -32,75 +32,7 @@ export default async function OnboardingPage() {
           </p>
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-          <form
-            action={async () => {
-              "use server";
-              await chooseRole("buyer");
-            }}
-          >
-            <SubmitButton
-              pendingText="Setting up…"
-              className={`${cardClasses} w-full disabled:cursor-not-allowed disabled:opacity-60`}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="28"
-                height="28"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="text-black dark:text-zinc-50"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 4.5h2.25l1.5 12.75h10.5l1.5-9H6.375M9 21a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm7.5 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
-                />
-              </svg>
-              <span className="text-base font-semibold text-black dark:text-zinc-50">
-                I want to buy
-              </span>
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                Browse the catalog and check out from independent vendors.
-              </span>
-            </SubmitButton>
-          </form>
-
-          <form
-            action={async () => {
-              "use server";
-              await chooseRole("vendor");
-            }}
-          >
-            <SubmitButton
-              pendingText="Setting up…"
-              className={`${cardClasses} w-full disabled:cursor-not-allowed disabled:opacity-60`}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="28"
-                height="28"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="text-black dark:text-zinc-50"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 9.75 12 4l9 5.75M4.5 10.5v9h15v-9M9.75 19.5v-6h4.5v6"
-                />
-              </svg>
-              <span className="text-base font-semibold text-black dark:text-zinc-50">
-                I want to sell
-              </span>
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                List products and manage orders as a vendor.
-              </span>
-            </SubmitButton>
-          </form>
-        </div>
+        <OnboardingForm defaultFullName={defaultFullName} />
       </div>
     </div>
   );

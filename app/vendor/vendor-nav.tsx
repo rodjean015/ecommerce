@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/vendor/products", label: "Products" },
   { href: "/vendor/orders", label: "Sales" },
+  { href: "/vendor/settings", label: "Settings" },
 ];
 
 export function VendorNav() {

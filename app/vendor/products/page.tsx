@@ -25,6 +25,11 @@ export default async function VendorProductsPage() {
     <div className="mx-auto w-full max-w-3xl">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          {vendor.shop_name ? (
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              {vendor.shop_name}
+            </p>
+          ) : null}
           <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
             Your products
           </h1>

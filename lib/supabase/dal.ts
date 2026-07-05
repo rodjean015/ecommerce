@@ -8,6 +8,7 @@ export type Profile = {
   id: string;
   role: UserRole;
   full_name: string | null;
+  shop_name: string | null;
   created_at: string;
 };
 
@@ -26,7 +27,7 @@ export const getProfile = cache(async (): Promise<Profile | null> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id, role, full_name, created_at")
+    .select("id, role, full_name, shop_name, created_at")
     .eq("id", user.id)
     .maybeSingle();
 

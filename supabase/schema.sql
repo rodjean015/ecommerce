@@ -16,14 +16,23 @@ create table if not exists profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   role user_role not null,
   full_name text,
+  shop_name text,
   created_at timestamptz not null default now()
 );
+
+alter table profiles add column if not exists shop_name text;
 
 alter table profiles enable row level security;
 
 drop policy if exists "profiles_select_own" on profiles;
 create policy "profiles_select_own" on profiles
   for select using (auth.uid() = id);
+
+-- Vendor name/shop_name are shown publicly on the catalog ("Sold by X"), so
+-- anyone must be able to read vendor profiles, not just the vendor themself.
+drop policy if exists "profiles_select_vendor_public" on profiles;
+create policy "profiles_select_vendor_public" on profiles
+  for select using (role = 'vendor');
 
 drop policy if exists "profiles_insert_own" on profiles;
 create policy "profiles_insert_own" on profiles
