@@ -456,3 +456,190 @@ create policy "addresses_update_own" on addresses
 drop policy if exists "addresses_delete_own" on addresses;
 create policy "addresses_delete_own" on addresses
   for delete using (auth.uid() = buyer_id);
+
+-- ============================================================================
+-- conversations / messages: realtime buyer <-> vendor inbox. Any buyer can
+-- message any vendor (and vice versa) once a conversation exists between
+-- them. Writes to `conversations` only ever happen via security definer
+-- functions/trigger below, so no insert/update policy is needed on it.
+-- ============================================================================
+
+create table if not exists conversations (
+  id uuid primary key default gen_random_uuid(),
+  buyer_id uuid not null references auth.users (id) on delete cascade,
+  vendor_id uuid not null references auth.users (id) on delete cascade,
+  last_message_at timestamptz,
+  last_message_body text,
+  last_message_sender_id uuid,
+  buyer_last_read_at timestamptz,
+  vendor_last_read_at timestamptz,
+  created_at timestamptz not null default now(),
+  unique (buyer_id, vendor_id)
+);
+
+create index if not exists conversations_buyer_id_idx on conversations (buyer_id);
+create index if not exists conversations_vendor_id_idx on conversations (vendor_id);
+
+alter table conversations enable row level security;
+
+drop policy if exists "conversations_select_participant" on conversations;
+create policy "conversations_select_participant" on conversations
+  for select using (auth.uid() = buyer_id or auth.uid() = vendor_id);
+
+create table if not exists messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references conversations (id) on delete cascade,
+  sender_id uuid not null references auth.users (id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 4000),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists messages_conversation_id_idx on messages (conversation_id, created_at);
+
+alter table messages enable row level security;
+
+drop policy if exists "messages_select_participant" on messages;
+create policy "messages_select_participant" on messages
+  for select using (
+    exists (
+      select 1 from conversations c
+      where c.id = messages.conversation_id
+        and (c.buyer_id = auth.uid() or c.vendor_id = auth.uid())
+    )
+  );
+
+drop policy if exists "messages_insert_participant" on messages;
+create policy "messages_insert_participant" on messages
+  for insert with check (
+    auth.uid() = sender_id
+    and exists (
+      select 1 from conversations c
+      where c.id = messages.conversation_id
+        and (c.buyer_id = auth.uid() or c.vendor_id = auth.uid())
+    )
+  );
+
+-- Bumps the parent conversation's last-message preview whenever a message is
+-- inserted. Security definer because the inserting user only has an insert
+-- policy on `messages`, not an update policy on `conversations`.
+create or replace function touch_conversation_on_message()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update conversations
+  set last_message_at = new.created_at,
+      last_message_body = new.body,
+      last_message_sender_id = new.sender_id
+  where id = new.conversation_id;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists messages_touch_conversation on messages;
+create trigger messages_touch_conversation
+  after insert on messages
+  for each row execute function touch_conversation_on_message();
+
+-- Finds (or lazily creates) the single conversation between the caller and
+-- `target_user_id`. Security definer so it can look up the target's role and
+-- insert into `conversations` without needing a direct insert policy.
+create or replace function start_conversation(target_user_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_caller_role user_role;
+  v_target_role user_role;
+  v_buyer_id uuid;
+  v_vendor_id uuid;
+  v_id uuid;
+begin
+  if target_user_id = auth.uid() then
+    raise exception 'Cannot start a conversation with yourself';
+  end if;
+
+  select role into v_caller_role from profiles where id = auth.uid();
+  select role into v_target_role from profiles where id = target_user_id;
+
+  if v_caller_role is null or v_target_role is null then
+    raise exception 'Both users must have a profile';
+  end if;
+
+  if v_caller_role = 'buyer' and v_target_role = 'vendor' then
+    v_buyer_id := auth.uid();
+    v_vendor_id := target_user_id;
+  elsif v_caller_role = 'vendor' and v_target_role = 'buyer' then
+    v_buyer_id := target_user_id;
+    v_vendor_id := auth.uid();
+  else
+    raise exception 'Conversations are only between a buyer and a vendor';
+  end if;
+
+  insert into conversations (buyer_id, vendor_id)
+  values (v_buyer_id, v_vendor_id)
+  on conflict (buyer_id, vendor_id) do nothing
+  returning id into v_id;
+
+  if v_id is null then
+    select id into v_id from conversations
+    where buyer_id = v_buyer_id and vendor_id = v_vendor_id;
+  end if;
+
+  return v_id;
+end;
+$$;
+
+grant execute on function start_conversation(uuid) to authenticated;
+
+-- Marks the caller's side of a conversation as read up to now. Security
+-- definer since there's no general update policy on `conversations`.
+create or replace function mark_conversation_read(p_conversation_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update conversations
+  set buyer_last_read_at = case when buyer_id = auth.uid() then now() else buyer_last_read_at end,
+      vendor_last_read_at = case when vendor_id = auth.uid() then now() else vendor_last_read_at end
+  where id = p_conversation_id
+    and (buyer_id = auth.uid() or vendor_id = auth.uid());
+end;
+$$;
+
+grant execute on function mark_conversation_read(uuid) to authenticated;
+
+-- Enable realtime delivery for the inbox (respects the select policies
+-- above, so a client only ever receives rows it's allowed to see).
+do $$ begin
+  alter publication supabase_realtime add table conversations;
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$ begin
+  alter publication supabase_realtime add table messages;
+exception
+  when duplicate_object then null;
+end $$;
+
+-- A vendor starting a new message needs to see the names of buyers who have
+-- actually bought from them (the "New message" picker), even though buyer
+-- profiles aren't public like vendor profiles are.
+drop policy if exists "profiles_select_buyer_by_vendor" on profiles;
+create policy "profiles_select_buyer_by_vendor" on profiles
+  for select using (
+    role = 'buyer'
+    and exists (
+      select 1 from order_items
+      where order_items.buyer_id = profiles.id
+        and order_items.vendor_id = auth.uid()
+    )
+  );

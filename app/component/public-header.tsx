@@ -36,7 +36,7 @@ export async function PublicHeader() {
             href={user ? "/dashboard" : "/login"}
             className="rounded-full bg-foreground px-4 py-2 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
           >
-            {user ? "Sign out" : "Sign in"}
+            {user ? "Dashboard" : "Sign in"}
           </Link>
         </nav>
       </div>

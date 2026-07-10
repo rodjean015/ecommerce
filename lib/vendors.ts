@@ -21,3 +21,14 @@ export async function getVendorProfile(
 
   return data;
 }
+
+export async function listVendors(): Promise<VendorProfile[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, shop_name, full_name, logo_url, cover_url")
+    .eq("role", "vendor")
+    .order("shop_name", { ascending: true });
+
+  return data ?? [];
+}

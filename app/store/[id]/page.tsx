@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
+import { getProfile } from "@/lib/supabase/dal";
 import { getVendorProfile } from "@/lib/vendors";
 import { listProducts } from "@/lib/products";
+import { createConversation } from "@/app/messages/actions";
 import { ProductCard } from "@/app/component/product-card";
 import { PublicHeader } from "@/app/component/public-header";
 import { PublicFooter } from "@/app/component/public-footer";
+import { SubmitButton } from "@/app/component/submit-button";
 
 const COVER_GRADIENTS = [
   "from-rose-400 to-orange-300",
@@ -42,10 +45,14 @@ export default async function VendorStorePage({
 
   if (!vendor) notFound();
 
-  const products = await listProducts({ vendorId: id });
+  const [products, viewer] = await Promise.all([
+    listProducts({ vendorId: id }),
+    getProfile(),
+  ]);
   const shopName = vendor.shop_name ?? vendor.full_name ?? "Shop";
   const initials = getInitials(shopName);
   const gradient = COVER_GRADIENTS[hashString(vendor.id) % COVER_GRADIENTS.length];
+  const canMessage = (!viewer || viewer.role === "buyer") && viewer?.id !== vendor.id;
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -84,13 +91,25 @@ export default async function VendorStorePage({
               </div>
             )}
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
-              {shopName}
-            </h1>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              {products.length} product{products.length === 1 ? "" : "s"}
-            </p>
+          <div className="flex flex-1 items-end justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
+                {shopName}
+              </h1>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                {products.length} product{products.length === 1 ? "" : "s"}
+              </p>
+            </div>
+            {canMessage && (
+              <form action={createConversation.bind(null, vendor.id)}>
+                <SubmitButton
+                  pendingText="Opening…"
+                  className="rounded-full border border-black/[.15] px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-black/[.04] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[.2] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+                >
+                  Message
+                </SubmitButton>
+              </form>
+            )}
           </div>
         </div>
 

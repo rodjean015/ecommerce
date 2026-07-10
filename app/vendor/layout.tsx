@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireVendor } from "@/lib/supabase/dal";
+import { countUnreadConversations } from "@/lib/chat";
 import { signOut } from "@/app/auth/actions";
 import { VendorNav } from "@/app/vendor/vendor-nav";
 import { SubmitButton } from "@/app/component/submit-button";
@@ -10,7 +11,8 @@ export default async function VendorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireVendor();
+  const vendor = await requireVendor();
+  const unreadCount = await countUnreadConversations(vendor.id);
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -23,7 +25,7 @@ export default async function VendorLayout({
             <Logo height={32} />
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
-            <VendorNav />
+            <VendorNav userId={vendor.id} initialUnread={unreadCount} />
             <form action={signOut}>
               <SubmitButton
                 pendingText="Signing out…"
